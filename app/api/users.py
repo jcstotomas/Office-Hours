@@ -3,27 +3,33 @@ from app.models import User
 from flask import jsonify
 from app.api.errors import bad_request
 from app import db
-from flask import url_for, request
+from flask import url_for, request, abort, g
+from app.api.auth import token_auth
+
+
 @bp.route('/users/<string:username>', methods=['GET'])
+@token_auth.login_required
 def get_user(username):
     return jsonify(User.query.filter_by(username=username).first_or_404().user_to_dict())
 
 @bp.route('/users', methods=['GET'])
+@token_auth.login_required
 def get_users():
     pass
 
 @bp.route('/users/<string:username>/connections', methods=['GET'])
+@token_auth.login_required
 def get_followers(id):
     pass
 
 @bp.route('/users/<string:username>/followed', methods=['GET'])
+@token_auth.login_required
 def get_followed(id):
     pass
 
 @bp.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json() or {}
-    print(data)
     if 'username' not in data or 'email' not in data or 'password' not in data:
         return bad_request("Must include username, password, and email")
     if User.query.filter_by(username=data['username']).first():
@@ -33,6 +39,7 @@ def create_user():
 
     user = User()
     user.from_dict(data, new_user=True)
+    user.get_token()
     db.session.add(user)
     db.session.commit()
     response = jsonify(user.user_to_dict())
@@ -43,7 +50,10 @@ def create_user():
 
 
 @bp.route('/users/<string:username>', methods=['PUT'])
+@token_auth.login_required
 def update_user(username):
+    if g.current_user.username != username:
+        abort(403)
     user = User.query.filter_by(username=username).first_or_404()
     data = request.get_json() or {}
     if 'username' in data and data['username'] != user.username and User.query.filter_by(username=data['username']).first():

@@ -1,8 +1,9 @@
 from app import db
-from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
-
+import base64 
+from datetime import datetime, timedelta
+import os 
 
 
 connections = db.Table('connections',
@@ -24,6 +25,9 @@ class User(UserMixin, db.Model):
         primaryjoin=(connections.c.user_a_id == id),
         secondaryjoin=(connections.c.user_b_id == id),
         backref=db.backref('connections', lazy='dynamic'), lazy='dynamic')
+    token = db.Column(db.String(32), index=True, unique= True)
+    token_expiration = db.Column(db.DateTime)
+
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -49,12 +53,32 @@ class User(UserMixin, db.Model):
             'about_me': self.about_me,
             'post_count': self.posts.count(),
             'connection_count': self.connections.count(),
+            'token': self.token
             # '_links': {
             #     'self': url_for('api.get_user', id=self.id),
             #     # 'connections': url_for('api.get_connections', id=self.id),
             # }
         }
         return user_data
+
+    def get_token(self, expires_in=3600):
+        now = datetime.utcnow()
+        if  self.token_expiration != None and (self.token and self.token_expiration > now + timedelta(seconds=60)):
+            return self.token
+        self.token = base64.b64encode(os.urandom(24)).decode('utf-8')
+        self.token_expiration = now + timedelta(seconds=expires_in)
+        db.session.add(self)
+        return self.token
+
+    def revoke_token(self):
+        self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
+
+    @staticmethod
+    def check_token(token):
+        user = User.query.filter_by(token=token).first()
+        if user is None or user.token_expiration < datetime.utcnow():
+            return None
+        return user
 
     def from_dict(self, data, new_user=False):
         for field in ['username', 'email', 'about_me']:

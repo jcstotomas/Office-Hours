@@ -1,7 +1,8 @@
-from flask import jsonify
+from flask import jsonify,g
 from werkzeug.http import HTTP_STATUS_CODES
 
-def error_response(status_code, message=None):
+
+def error_responses(status_code, message=None):
     payload = {'error': HTTP_STATUS_CODES.get(status_code, 'Unknown error')}
     if message:
         payload['message'] = message
@@ -11,4 +12,5 @@ def error_response(status_code, message=None):
 
 
 def bad_request(message):
-    return error_response(400, message)
+    return error_responses(400, message)
+
