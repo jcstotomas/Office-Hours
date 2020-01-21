@@ -1,15 +1,13 @@
 import React from "react";
 import axios from "axios";
 
-export default class Registration extends React.Component {
+export default class Login extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       username: "",
-      email: "",
       password: "",
-      password_confirmation: "",
-      reg_errors: ""
+      login_errors: ""
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,26 +21,26 @@ export default class Registration extends React.Component {
   }
 
   handleSubmit(event) {
-    const { username, email, password } = this.state;
+    const { username, password } = this.state;
     axios
       .post(
-        "http://localhost:5000/api/users",
+        "http://localhost:5000/api/tokens",
+        {},
         {
-          username: username,
-          email: email,
-          password: password
+          auth: {
+            username: username,
+            password: password
+          }
         }
-        // { withCredentials: true }
       )
       .then(response => {
-        if (response.status === 201) {
-          console.log("created");
-          localStorage.setItem("token", response.data.token);
+        console.log("res from login", response);
+        if (response.status === 200) {
           this.props.handleSuccessfulAuth(response.data);
         }
       })
       .catch(error => {
-        console.log("registration error", error);
+        console.log("login error", error);
       });
     event.preventDefault();
   }
@@ -60,14 +58,6 @@ export default class Registration extends React.Component {
             required
           />
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={this.state.email}
-            onChange={this.handleChange}
-            required
-          />
-          <input
             type="password"
             name="password"
             placeholder="Password"
@@ -75,15 +65,8 @@ export default class Registration extends React.Component {
             onChange={this.handleChange}
             required
           />
-          <input
-            type="password"
-            name="password_confirmation"
-            placeholder="Password Confirmed"
-            value={this.state.password_confirmation}
-            onChange={this.handleChange}
-            required
-          />
-          <button type="submit">Register</button>
+
+          <button type="submit">Login</button>
         </form>
       </div>
     );

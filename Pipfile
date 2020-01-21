@@ -12,6 +12,7 @@ flask-migrate = "*"
 flask-login = "*"
 flask-httpauth = "*"
 flask-cors = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.6"

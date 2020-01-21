@@ -11,6 +11,14 @@ export default class App extends React.Component {
       loggedIn: "NOT_LOGGED_IN",
       user: {}
     };
+    this.handleLogin = this.handleLogin.bind(this);
+  }
+
+  handleLogin(data) {
+    this.setState({
+      loggedIn: "LOGGED IN",
+      user: data
+    });
   }
   render() {
     return (
@@ -21,10 +29,20 @@ export default class App extends React.Component {
               exact
               path={"/"}
               render={props => (
-                <Home {...props} loggedIn={this.state.loggedIn} />
+                <Home
+                  {...props}
+                  handleLogin={this.handleLogin}
+                  loggedIn={this.state.loggedIn}
+                />
               )}
             />
-            <Route exact path={"/profile"} component={Profile} />
+            <Route
+              exact
+              path={"/profile"}
+              render={props => (
+                <Profile {...props} loggedIn={this.state.loggedIn} />
+              )}
+            />
           </Switch>
         </BrowserRouter>
       </div>
