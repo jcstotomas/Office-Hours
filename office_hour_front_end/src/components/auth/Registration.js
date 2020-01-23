@@ -38,6 +38,7 @@ export default class Registration extends React.Component {
         if (response.status === 201) {
           console.log("created");
           localStorage.setItem("token", response.data.token);
+          localStorage.setItem("username", username);
           this.props.handleSuccessfulAuth(response.data);
         }
       })

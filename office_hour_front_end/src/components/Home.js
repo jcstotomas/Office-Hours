@@ -7,6 +7,7 @@ export default class Home extends React.Component {
     super(props);
 
     this.handleSuccessfulAuth = this.handleSuccessfulAuth.bind(this);
+    this.handleLogoutClick = this.handleLogoutClick.bind(this);
   }
 
   handleSuccessfulAuth(data) {
@@ -14,11 +15,17 @@ export default class Home extends React.Component {
     this.props.history.push("/profile");
   }
 
+  handleLogoutClick() {
+    this.props.handle_logout();
+    console.log("logged out");
+  }
+
   render() {
     return (
       <div>
-        <h1>Home Page</h1>
+        <h1 className="home">Home Page</h1>
         <h1>Status: {this.props.loggedIn}</h1>
+        <button onClick={() => this.handleLogoutClick()}>Logout</button>
         <Registration handleSuccessfulAuth={this.handleSuccessfulAuth} />
         <Login handleSuccessfulAuth={this.handleSuccessfulAuth} />
       </div>
