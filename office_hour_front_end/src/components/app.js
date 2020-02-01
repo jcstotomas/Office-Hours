@@ -86,6 +86,7 @@ export default class App extends React.Component {
                   {...props}
                   loggedIn={this.state.loggedIn}
                   handle_logout={this.handle_logout}
+                  object={this.state.user}
                 />
               )}
             />

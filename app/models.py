@@ -19,6 +19,8 @@ class User(UserMixin, db.Model):
     year = db.Column(db.String(64))
     major = db.Column(db.String(64))
     password_hash = db.Column(db.String(128))
+    interests = db.Column(db.String(256))
+    skills_to_build = db.Column(db.String(256))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     connected = db.relationship(
         'User', secondary=connections,
@@ -53,7 +55,12 @@ class User(UserMixin, db.Model):
             'about_me': self.about_me,
             'post_count': self.posts.count(),
             'connection_count': self.connections.count(),
-            'token': self.token
+            'token': self.token,
+            'skills_to_build': self.skills_to_build,
+            "name": self.name,
+            "interests": self.interests,
+            "year": self.year,
+            "major":self.major
             # '_links': {
             #     'self': url_for('api.get_user', id=self.id),
             #     # 'connections': url_for('api.get_connections', id=self.id),
@@ -81,7 +88,7 @@ class User(UserMixin, db.Model):
         return user
 
     def from_dict(self, data, new_user=False):
-        for field in ['username', 'email', 'about_me']:
+        for field in ['username', 'email', 'about_me', 'interests', 'skills_to_build', 'year', 'name', 'major']:
             if field in data:
                 setattr(self, field, data[field])
         if new_user and 'password' in data:

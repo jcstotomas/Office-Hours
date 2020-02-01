@@ -38,6 +38,7 @@ export default class Login extends React.Component {
         if (response.status === 200) {
           localStorage.setItem("token", response.data.token);
           localStorage.setItem("username", username);
+          localStorage.setItem("data", response.data.about);
           this.props.handleSuccessfulAuth(response.data);
         }
       })
